@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kortstokk API</title>
+</head>
+<body>
+    <h1>Kortstokk API</h1>
+    <button id="createDeck">Opprett ny kortstokk</button>
+    <button id="shuffleDeck">Stokk kortstokk</button>
+    <button id="getDeck">Hent hele kortstokken</button>
+    <button id="drawCard">Trekk et kort</button>
+
+    <div id="result"></div>
+
+    <script>
+        let deckId;
+
+        document.getElementById('createDeck').onclick = async () => {
+            const res = await fetch('/temp/deck', { method: 'POST' });
+            const data = await res.json();
+            deckId = data.deck_id;
+            document.getElementById('result').innerText = `Ny kortstokk opprettet: ${deckId}`;
+        };
+
+        document.getElementById('shuffleDeck').onclick = async () => {
+            if (!deckId) return alert('Opprett en kortstokk først.');
+            const res = await fetch(`/temp/deck/shuffle/${deckId}`, { method: 'PATCH' });
+            const data = await res.json();
+            document.getElementById('result').innerText = data.message;
+        };
+
+        document.getElementById('getDeck').onclick = async () => {
+            if (!deckId) return alert('Opprett en kortstokk først.');
+            const res = await fetch(`/temp/deck/${deckId}`);
+            const data = await res.json();
+            document.getElementById('result').innerText = JSON.stringify(data.deck, null, 2);
+        };
+
+        document.getElementById('drawCard').onclick = async () => {
+            if (!deckId) return alert('Opprett en kortstokk først.');
+            const res = await fetch(`/temp/deck/${deckId}/card`);
+            const data = await res.json();
+            document.getElementById('result').innerText = `Du trakk: ${data.card}`;
+        };
+    </script>
+</body>
+</html>
