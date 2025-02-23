@@ -1,0 +1,41 @@
+{
+	"info": {
+		"_postman_id": "9f454fee-38f7-4e39-bf68-3ccf1705451c",
+		"name": "tree",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42560150"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/tree",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Oppdatert gren 2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/tree",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tree"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

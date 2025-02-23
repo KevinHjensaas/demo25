@@ -9,7 +9,7 @@ console.log("🚀 Starter server.js...");
 
 app.use(express.static("public"));
 app.use(express.json());
-//app.use(sessionMiddleware);
+app.use(sessionMiddleware);
 console.log("sessionMiddleware type:", typeof sessionMiddleware);
 const decks = {};
 
