@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kortstokk API</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
 </head>
 <body>
     <h1>Kortstokk API</h1>
@@ -15,6 +17,16 @@
     <div id="result"></div>
 
     <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then((registration) => {
+                    console.log('Service Worker registrert:', registration);
+                })
+                .catch((error) => {
+                    console.log('Service Worker feilet:', error);
+                });
+        }
+
         let deckId;
 
         document.getElementById('createDeck').onclick = async () => {

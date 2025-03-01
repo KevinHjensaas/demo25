@@ -7,10 +7,10 @@ const PORT = 8080;
 
 const decks = {};
 
-console.log("🚀 Starter server.js...");
-console.log("📌 Importerer sessionMiddleware...");
-console.log("🔍 sessionMiddleware:", sessionMiddleware);
-console.log("🔍 sessionMiddleware type:", typeof sessionMiddleware);
+console.log("Starter server.js...");
+console.log("Importerer sessionMiddleware...");
+console.log("sessionMiddleware:", sessionMiddleware);
+console.log("sessionMiddleware type:", typeof sessionMiddleware);
 
 console.log("Starter server.js...");
 

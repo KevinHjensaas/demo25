@@ -1,7 +1,7 @@
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 
-console.log("✅ Initialiserer sessionMiddleware...");
+console.log("Initialiserer sessionMiddleware...");
 
 const sessionMiddleware = session({
     store: new FileStore({
@@ -15,5 +15,5 @@ const sessionMiddleware = session({
     cookie: { secure: false, httpOnly: true }
 });
 
-console.log("✅ sessionMiddleware lastet som en funksjon:", typeof sessionMiddleware);
+console.log("sessionMiddleware lastet som en funksjon:", typeof sessionMiddleware);
 module.exports = sessionMiddleware;
