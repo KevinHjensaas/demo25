@@ -1,7 +1,11 @@
+// server.js
+
 const express = require("express");
 const sessionMiddleware = require("./middleware/sessionPersistence");
 const treeRouter = require("./routes/treeRouter");
+const DeckModel = require("./models/deckModel");  // Importer modellen
 
+// Egen logging middleware
 function myLoggingMiddleware(req, res, next) {
   console.log(`[LOG] ${req.method} ${req.url} - ${new Date().toISOString()}`);
   next();
@@ -10,8 +14,6 @@ function myLoggingMiddleware(req, res, next) {
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-const decks = {};
-
 console.log("Starter server.js...");
 console.log("Importerer sessionMiddleware...");
 console.log("sessionMiddleware:", sessionMiddleware);
@@ -19,11 +21,8 @@ console.log("sessionMiddleware type:", typeof sessionMiddleware);
 console.log("Starter server.js...");
 
 app.use(express.static("public"));
-
 app.use(express.json());
-
 app.use(sessionMiddleware);
-
 app.use(myLoggingMiddleware);
 
 console.log("sessionMiddleware type:", typeof sessionMiddleware);
@@ -59,62 +58,59 @@ app.post("/tmp/sum/:a/:b", (req, res) => {
   res.send(`Summen av ${a} og ${b} er ${a + b}`);
 });
 
-app.post("/temp/deck", (req, res) => {
-  const deckId = Date.now().toString();
-  const suits = ["Hjerter", "Ruter", "Spar", "Kløver"];
-  const ranks = [
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "J",
-    "Q",
-    "K",
-    "A",
-  ];
+// --- CRUD-endepunkter for kortstokk med PostgreSQL ---
 
-  const deck = suits.flatMap((suit) => ranks.map((rank) => `${suit} ${rank}`));
-
-  decks[deckId] = deck;
-
-  res.status(201).send({ deck_id: deckId });
-});
-
-app.patch("/temp/deck/shuffle/:deck_id", (req, res) => {
-  const deck = decks[req.params.deck_id];
-  if (!deck) return res.status(404).send({ error: "Kortstokk finnes ikke." });
-
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
+// POST /temp/deck - Opprett ny kortstokk i databasen
+app.post("/temp/deck", async (req, res) => {
+  try {
+    const deck_id = await DeckModel.createDeck();
+    res.status(201).json({ deck_id });
+  } catch (error) {
+    console.error("Feil ved oppretting av kortstokk:", error);
+    res.status(500).json({ error: "Feil ved oppretting av kortstokk" });
   }
-
-  res.send({ message: "Kortstokken er stokket." });
 });
 
-app.get("/temp/deck/:deck_id", (req, res) => {
-  const deck = decks[req.params.deck_id];
-  if (!deck) return res.status(404).send({ error: "Kortstokk finnes ikke." });
-
-  res.send({ deck });
-});
-
-app.get("/temp/deck/:deck_id/card", (req, res) => {
-  const deck = decks[req.params.deck_id];
-  if (!deck) return res.status(404).send({ error: "Kortstokk finnes ikke." });
-  if (deck.length === 0) {
-    return res.status(400).send({ error: "Kortstokken er tom." });
+// PATCH /temp/deck/shuffle/:deck_id - Stokk kortstokken
+app.patch("/temp/deck/shuffle/:deck_id", async (req, res) => {
+  try {
+    const { deck_id } = req.params;
+    const message = await DeckModel.shuffleDeck(deck_id);
+    res.json({ message });
+  } catch (error) {
+    console.error("Feil ved stokking av kortstokk:", error);
+    res.status(500).json({ error: "Feil ved stokking av kortstokk" });
   }
+});
 
-  const cardIndex = Math.floor(Math.random() * deck.length);
-  const card = deck.splice(cardIndex, 1)[0];
+// GET /temp/deck/:deck_id - Hent hele kortstokken fra databasen
+app.get("/temp/deck/:deck_id", async (req, res) => {
+  try {
+    const { deck_id } = req.params;
+    const deck = await DeckModel.getDeck(deck_id);
+    if (deck.length === 0) {
+      return res.status(404).json({ error: "Kortstokk finnes ikke." });
+    }
+    res.json({ deck });
+  } catch (error) {
+    console.error("Feil ved henting av kortstokk:", error);
+    res.status(500).json({ error: "Feil ved henting av kortstokk" });
+  }
+});
 
-  res.send({ card });
+// GET /temp/deck/:deck_id/card - Trekk et kort (fjern fra databasen)
+app.get("/temp/deck/:deck_id/card", async (req, res) => {
+  try {
+    const { deck_id } = req.params;
+    const card = await DeckModel.drawCard(deck_id);
+    res.json({ card });
+  } catch (error) {
+    console.error("Feil ved trekking av kort:", error);
+    if (error.message.includes("tom") || error.message.includes("finnes ikke")) {
+      return res.status(400).json({ error: error.message });
+    }
+    res.status(500).json({ error: "Feil ved trekking av kort" });
+  }
 });
 
 app.use("/tree", treeRouter);
