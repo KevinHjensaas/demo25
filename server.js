@@ -1,11 +1,11 @@
-// server.js
+
 
 const express = require("express");
 const sessionMiddleware = require("./middleware/sessionPersistence");
 const treeRouter = require("./routes/treeRouter");
-const DeckModel = require("./models/deckModel");  // Importer modellen
+const DeckModel = require("./models/deckModel");  
 
-// Egen logging middleware
+
 function myLoggingMiddleware(req, res, next) {
   console.log(`[LOG] ${req.method} ${req.url} - ${new Date().toISOString()}`);
   next();
@@ -58,9 +58,7 @@ app.post("/tmp/sum/:a/:b", (req, res) => {
   res.send(`Summen av ${a} og ${b} er ${a + b}`);
 });
 
-// --- CRUD-endepunkter for kortstokk med PostgreSQL ---
 
-// POST /temp/deck - Opprett ny kortstokk i databasen
 app.post("/temp/deck", async (req, res) => {
   try {
     const deck_id = await DeckModel.createDeck();
@@ -71,7 +69,7 @@ app.post("/temp/deck", async (req, res) => {
   }
 });
 
-// PATCH /temp/deck/shuffle/:deck_id - Stokk kortstokken
+
 app.patch("/temp/deck/shuffle/:deck_id", async (req, res) => {
   try {
     const { deck_id } = req.params;
@@ -83,7 +81,7 @@ app.patch("/temp/deck/shuffle/:deck_id", async (req, res) => {
   }
 });
 
-// GET /temp/deck/:deck_id - Hent hele kortstokken fra databasen
+
 app.get("/temp/deck/:deck_id", async (req, res) => {
   try {
     const { deck_id } = req.params;
@@ -98,7 +96,7 @@ app.get("/temp/deck/:deck_id", async (req, res) => {
   }
 });
 
-// GET /temp/deck/:deck_id/card - Trekk et kort (fjern fra databasen)
+
 app.get("/temp/deck/:deck_id/card", async (req, res) => {
   try {
     const { deck_id } = req.params;
